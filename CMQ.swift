@@ -1,4 +1,5 @@
 import AppKit
+import QuickLookUI
 import UniformTypeIdentifiers
 
 enum TransferMode { case copy, move }
@@ -18,7 +19,7 @@ final class FileItem: NSObject {
     }
 }
 
-final class PaneController: NSViewController, NSTableViewDataSource, NSTableViewDelegate, NSMenuDelegate {
+final class PaneController: NSViewController, NSTableViewDataSource, NSTableViewDelegate, NSMenuDelegate, QLPreviewPanelDataSource {
     weak var partner: PaneController?
     private let volumePopup = NSPopUpButton()
     private let backButton = NSButton(title: "‹", target: nil, action: nil)
@@ -34,6 +35,7 @@ final class PaneController: NSViewController, NSTableViewDataSource, NSTableView
     private(set) var currentURL: URL
     private var items: [FileItem] = []
     private var draggedURLs: [URL] = []
+    private var previewURLs: [URL] = []
     private let defaultsKey: String
 
     init(initialURL: URL, defaultsKey: String) {
@@ -370,7 +372,23 @@ final class PaneController: NSViewController, NSTableViewDataSource, NSTableView
     @objc private func moveToOther() { if let partner { partner.transfer(selectedItems.map(\.url), to: partner.currentURL, mode: .move) } }
     @objc private func duplicateSelection() { transfer(selectedItems.map(\.url), to: currentURL, mode: .copy) }
     @objc private func revealSelection() { NSWorkspace.shared.activateFileViewerSelecting(selectedItems.map(\.url)) }
-    @objc private func quickLookSelection() { NSWorkspace.shared.open(selectedItems.map(\.url).first!) }
+    @objc private func quickLookSelection() {
+        let urls = selectedItems.map(\.url)
+        guard !urls.isEmpty else { return }
+        previewURLs = urls
+        guard let panel = QLPreviewPanel.shared() else { return }
+        panel.dataSource = self
+        panel.currentPreviewItemIndex = 0
+        panel.reloadData()
+        panel.makeKeyAndOrderFront(nil)
+    }
+
+    func numberOfPreviewItems(in panel: QLPreviewPanel!) -> Int { previewURLs.count }
+
+    func previewPanel(_ panel: QLPreviewPanel!, previewItemAt index: Int) -> (any QLPreviewItem)! {
+        guard previewURLs.indices.contains(index) else { return nil }
+        return previewURLs[index] as NSURL
+    }
     @objc private func copyPath() { NSPasteboard.general.clearContents(); NSPasteboard.general.setString(selectedItems.map { $0.url.path }.joined(separator: "\n"), forType: .string) }
     @objc private func refreshAction() { reload() }
     @objc private func getInfo() { if let url = selectedItems.first?.url { NSWorkspace.shared.activateFileViewerSelecting([url]) } }
