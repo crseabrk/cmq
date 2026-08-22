@@ -62,6 +62,8 @@ Its name describes the intended workflow—copy something, move something, quit.
 
 Feature proposals are welcome when they strengthen that workflow without turning CMQ into a general-purpose file-management suite.
 
+The development story and completed release milestones are recorded in [Project history](PROJECT_HISTORY.md).
+
 ## License
 
 [MIT](LICENSE)
