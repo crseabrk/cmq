@@ -56,7 +56,9 @@ Click **+**, select `/Applications/CMQ.app`, enable it, and restart CMQ. Full Di
 
 ## Philosophy
 
-CMQ began with one uncomplicated need: keep two folders visible and move files between them. Its name is its intended workflow—copy something, move something, quit.
+CMQ began with one uncomplicated need: after a night-long session with a smart telescope, retrieve a large batch of FITS files from the telescope while keeping the source and destination visible. A simple two-pane view makes that transfer direct and easy to follow.
+
+Its name describes the intended workflow—copy something, move something, quit.
 
 Feature proposals are welcome when they strengthen that workflow without turning CMQ into a general-purpose file-management suite.
 
