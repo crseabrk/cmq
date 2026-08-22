@@ -7,7 +7,7 @@ export DEVELOPER_DIR="${DEVELOPER_DIR:-/Applications/Xcode.app/Contents/Develope
 export CLANG_MODULE_CACHE_PATH="$ROOT/.build/module-cache"
 
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources" "$CLANG_MODULE_CACHE_PATH"
-xcrun swiftc "$ROOT/CMQ.swift" -o "$APP/Contents/MacOS/CMQ" -framework AppKit -framework UniformTypeIdentifiers
+xcrun swiftc "$ROOT/CMQ.swift" -o "$APP/Contents/MacOS/CMQ" -framework AppKit -framework QuickLookUI -framework UniformTypeIdentifiers
 
 cp "$ROOT/Info.plist" "$APP/Contents/Info.plist"
 cp "$ROOT/Assets/CMQ.icns" "$APP/Contents/Resources/CMQ.icns"
