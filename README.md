@@ -11,6 +11,7 @@ CMQ is a deliberately small, native two-pane file manager for macOS. Choose a dr
 - Back, forward, up, and direct path navigation
 - Drag-and-drop copy; hold Command while dropping to move
 - Byte-level transfer progress
+- Native Quick Look previews for one or several selected files
 - Native context menu for common file operations
 - Remembers pane locations, window size, and divider position
 - Falls back to the home folder when a remembered location is unavailable
