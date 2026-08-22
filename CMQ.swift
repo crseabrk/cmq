@@ -36,6 +36,7 @@ final class PaneController: NSViewController, NSTableViewDataSource, NSTableView
     private var items: [FileItem] = []
     private var draggedURLs: [URL] = []
     private var previewURLs: [URL] = []
+    private var contextMenuURLs: [URL] = []
     private let defaultsKey: String
 
     init(initialURL: URL, defaultsKey: String) {
@@ -345,7 +346,12 @@ final class PaneController: NSViewController, NSTableViewDataSource, NSTableView
 
     func menuNeedsUpdate(_ menu: NSMenu) {
         menu.removeAllItems()
+        let clickedRow = tableView.clickedRow
+        if clickedRow >= 0 && !tableView.selectedRowIndexes.contains(clickedRow) {
+            tableView.selectRowIndexes(IndexSet(integer: clickedRow), byExtendingSelection: false)
+        }
         let selected = selectedItems
+        contextMenuURLs = selected.map(\.url)
         add(menu, "Open", #selector(openSelection), enabled: !selected.isEmpty)
         add(menu, "Open With…", #selector(openWith), enabled: selected.count == 1 && !selected[0].isDirectory)
         add(menu, "Quick Look", #selector(quickLookSelection), enabled: !selected.isEmpty)
@@ -373,9 +379,10 @@ final class PaneController: NSViewController, NSTableViewDataSource, NSTableView
     @objc private func duplicateSelection() { transfer(selectedItems.map(\.url), to: currentURL, mode: .copy) }
     @objc private func revealSelection() { NSWorkspace.shared.activateFileViewerSelecting(selectedItems.map(\.url)) }
     @objc private func quickLookSelection() {
-        let urls = selectedItems.map(\.url)
+        let urls = contextMenuURLs.isEmpty ? selectedItems.map(\.url) : contextMenuURLs
         guard !urls.isEmpty else { return }
         previewURLs = urls
+        contextMenuURLs = []
         guard let panel = QLPreviewPanel.shared() else { return }
         panel.dataSource = self
         panel.currentPreviewItemIndex = 0
