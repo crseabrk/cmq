@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.2 — 2026-08-22
+
+### Fixed
+
+- Quick Look captures the right-clicked file selection before the context menu closes, so the native preview panel receives the selected files reliably.
+- Right-clicking an unselected row now makes that row the context-menu selection, matching normal macOS file-browser behavior.
+
 ## 1.0.1 — 2026-08-22
 
 ### Fixed
