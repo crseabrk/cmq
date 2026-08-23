@@ -7,9 +7,28 @@ The existing Swift/AppKit application remains the macOS implementation. The Wind
 ## Requirements
 
 - Windows 11
-- .NET 8 SDK
+- .NET 8 SDK when building from source
 
-## Build and run
+Self-contained release and test builds include the required runtime.
+
+## Running a downloaded build
+
+1. Download the Windows ZIP and extract it to a normal folder.
+2. Run `CMQ.exe`.
+3. If Microsoft Defender SmartScreen shows **Windows protected your PC**, select **More info**.
+4. Confirm that the application name is **CMQ.exe**, then select **Run anyway**.
+
+CMQ's community builds are not currently code-signed, so Windows may show this warning for every newly downloaded version—not only test builds. Only authorize a copy downloaded from the official CMQ GitHub repository.
+
+You can also remove the downloaded-file marker before running it:
+
+1. Right-click the downloaded ZIP—or `CMQ.exe` after extraction—and choose **Properties**.
+2. On the **General** tab, select **Unblock** near the bottom.
+3. Select **Apply**, then **OK**.
+
+If **Unblock** is not shown, Windows has not marked that file as downloaded or it has already been unblocked.
+
+## Build and run from source
 
 ```powershell
 cd windows\CMQ.Windows
