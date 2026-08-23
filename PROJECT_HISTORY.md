@@ -39,7 +39,11 @@ On August 23, 2026, CMQ's focused workflow was recreated as a native .NET 8/WPF 
 
 The Windows release retained the two-pane layout, navigation history, direct paths, copy and move transfers, byte-level progress, remembered layout, and familiar file actions. Windows conventions replaced platform-specific Mac behavior: Shift-drop moves items, File Explorer replaces Finder, and the Recycle Bin replaces Trash.
 
-The release is distributed as a self-contained x64 ZIP, documents Microsoft Defender SmartScreen authorization for unsigned community builds, and embeds a multi-resolution Windows icon derived from the original CMQ artwork.
+The initial release was distributed as a self-contained x64 ZIP and documented Microsoft Defender SmartScreen authorization for unsigned community builds.
+
+### Windows 1.0.1 — Shared CMQ branding
+
+The first corrective Windows release embedded a multi-resolution executable icon derived from the original CMQ artwork and added explicit Windows version metadata. The original 1.0.0 release was preserved so published binaries remained immutable.
 
 ## Working method
 
