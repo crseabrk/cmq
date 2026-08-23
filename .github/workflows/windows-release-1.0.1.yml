@@ -1,0 +1,32 @@
+name: Publish Windows 1.0.1
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/windows-release-1.0.1.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Publish standalone Windows build
+        run: dotnet publish windows/CMQ.Windows/CMQ.Windows.csproj --configuration Release --runtime win-x64 --self-contained true -p:PublishSingleFile=true --output windows-release
+
+      - name: Package Windows build
+        shell: pwsh
+        run: Compress-Archive -Path windows-release\* -DestinationPath CMQ-Windows-x64.zip
+
+      - name: Create Windows 1.0.1 release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create windows-v1.0.1 CMQ-Windows-x64.zip --repo "${{ github.repository }}" --target "${{ github.sha }}" --title "CMQ for Windows 1.0.1" --notes "Windows 1.0.1 restores CMQ branding with a multi-resolution executable icon generated from the original macOS artwork and adds explicit Windows version metadata.`n`nDownload CMQ-Windows-x64.zip, extract it, and run CMQ.exe.`n`nThis community build is not code-signed. If Microsoft Defender SmartScreen appears, select More info, verify that the application is CMQ.exe, and select Run anyway. Only authorize builds downloaded from this official repository."
