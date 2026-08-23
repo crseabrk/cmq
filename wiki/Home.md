@@ -66,3 +66,4 @@ When first testing move or Recycle Bin behavior, use disposable files.
 CMQ began with one uncomplicated need: retrieving a large batch of FITS files after a smart-telescope session while keeping the telescope storage and destination visible at the same time.
 
 Its name describes the intended workflow: copy something, move something, quit.
+
