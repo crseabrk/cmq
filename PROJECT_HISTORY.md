@@ -2,7 +2,7 @@
 
 CMQ was created on August 22, 2026, to solve a specific file-transfer problem: after a night-long smart-telescope session, Chris needed a straightforward way to retrieve a large batch of FITS files while keeping the telescope storage and destination folder visible at the same time.
 
-The project was developed conversationally by Chris and Cody, his OpenAI Codex programming collaborator. Chris defined the workflow, tested each build on the Mac and with real files, and reported what happened. Cody translated those observations into the Swift/AppKit implementation, packaging, documentation, and release updates. The design stayed intentionally narrow throughout: two panes, copy, move, and the native file actions needed around that workflow.
+The project was developed conversationally by Chris and Cody, his OpenAI Codex programming collaborator. Chris defined the workflow, tested each build on the Mac and with real files, and reported what happened. Cody translated those observations into the Swift/AppKit implementation, packaging, documentation, and release updates. The same collaboration later produced a separate native Windows 11 implementation in the same repository while preserving the original Mac code. The design stayed intentionally narrow throughout: two panes, copy, move, and the native file actions needed around that workflow.
 
 ## Retrospective milestones
 
@@ -32,6 +32,14 @@ The first corrective release switched the action to Apple's native Quick Look pa
 Further testing showed that Quick Look no longer crashed but sometimes did nothing. The context-menu selection was transient and could disappear before the preview panel requested its files.
 
 The final fix captured the right-clicked selection before the menu closed and passed that saved URL list to Quick Look. Right-clicking an unselected row was also made to select that row, matching normal macOS file-browser behavior.
+
+### Windows 1.0.0 — Native Windows 11 release
+
+On August 23, 2026, CMQ's focused workflow was recreated as a native .NET 8/WPF application for Windows 11. The macOS Swift/AppKit source remained unchanged, while the repository gained a separate `windows/` implementation.
+
+The Windows release retained the two-pane layout, navigation history, direct paths, copy and move transfers, byte-level progress, remembered layout, and familiar file actions. Windows conventions replaced platform-specific Mac behavior: Shift-drop moves items, File Explorer replaces Finder, and the Recycle Bin replaces Trash.
+
+The release is distributed as a self-contained x64 ZIP, documents Microsoft Defender SmartScreen authorization for unsigned community builds, and embeds a multi-resolution Windows icon derived from the original CMQ artwork.
 
 ## Working method
 
