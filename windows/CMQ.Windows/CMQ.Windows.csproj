@@ -7,5 +7,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>CMQ</AssemblyName>
     <RootNamespace>CMQ.Windows</RootNamespace>
+    <ApplicationIcon>Assets\\CMQ.ico</ApplicationIcon>
   </PropertyGroup>
 </Project>
