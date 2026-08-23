@@ -14,7 +14,7 @@ The platform implementations share the same workflow and project space while rem
 ## Downloads
 
 - **macOS:** [CMQ 1.0.2 for macOS](https://github.com/crseabrk/cmq/releases/tag/v1.0.2)
-- **Windows 11:** [CMQ for Windows 1.0.0](https://github.com/crseabrk/cmq/releases/tag/windows-v1.0.0) — [direct ZIP download](https://github.com/crseabrk/cmq/releases/download/windows-v1.0.0/CMQ-Windows-x64.zip)
+- **Windows 11:** [CMQ for Windows 1.0.1](https://github.com/crseabrk/cmq/releases/tag/windows-v1.0.1) — [direct ZIP download](https://github.com/crseabrk/cmq/releases/download/windows-v1.0.1/CMQ-Windows-x64.zip)
 - **All versions:** [Releases](https://github.com/crseabrk/cmq/releases)
 
 macOS and Windows releases have independent version numbers. GitHub highlights the most recently published release, so use the platform-specific links above rather than relying on the **Latest** badge.
