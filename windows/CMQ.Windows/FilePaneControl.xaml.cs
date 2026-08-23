@@ -214,7 +214,7 @@ public partial class FilePaneControl : UserControl
         SetTransferState(true, 0, 1, "Calculating size…");
         Partner?.SetTransferState(true, 0, 1, "Calculating size…");
 
-        var progress = new Progress<TransferProgress>(p =>
+        var progress = new Progress<TransferStatus>(p =>
         {
             var text = $"{(mode == TransferMode.Copy ? "Copying" : "Moving")} {p.Name} — {FormatBytes(p.Completed)} of {FormatBytes(p.Total)}";
             SetTransferState(true, p.Completed, p.Total, text);
@@ -269,7 +269,7 @@ public partial class FilePaneControl : UserControl
         try
         {
             if (File.Exists(path)) return new FileInfo(path).Length;
-            return Directory.EnumerateFiles(path, "*", SearchOption.AllDirectories)
+            return Directory.EnumerateFiles(path, "*", System.IO.SearchOption.AllDirectories)
                 .Sum(file => { try { return new FileInfo(file).Length; } catch { return 0L; } });
         }
         catch { return 0; }
@@ -280,9 +280,9 @@ public partial class FilePaneControl : UserControl
         if (Directory.Exists(source))
         {
             Directory.CreateDirectory(target);
-            foreach (var directory in Directory.EnumerateDirectories(source, "*", SearchOption.AllDirectories))
+            foreach (var directory in Directory.EnumerateDirectories(source, "*", System.IO.SearchOption.AllDirectories))
                 Directory.CreateDirectory(Path.Combine(target, Path.GetRelativePath(source, directory)));
-            foreach (var file in Directory.EnumerateFiles(source, "*", SearchOption.AllDirectories))
+            foreach (var file in Directory.EnumerateFiles(source, "*", System.IO.SearchOption.AllDirectories))
                 CopyFile(file, Path.Combine(target, Path.GetRelativePath(source, file)), report);
             return;
         }
