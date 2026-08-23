@@ -17,6 +17,8 @@ The platform implementations share the same workflow and project space while rem
 - **Windows 11:** [CMQ for Windows 1.0.0](https://github.com/crseabrk/cmq/releases/tag/windows-v1.0.0) — [direct ZIP download](https://github.com/crseabrk/cmq/releases/download/windows-v1.0.0/CMQ-Windows-x64.zip)
 - **All versions:** [Releases](https://github.com/crseabrk/cmq/releases)
 
+macOS and Windows releases have independent version numbers. GitHub highlights the most recently published release, so use the platform-specific links above rather than relying on the **Latest** badge.
+
 ## Features
 
 - Two independent file panes
@@ -25,6 +27,7 @@ The platform implementations share the same workflow and project space while rem
 - Drag-and-drop copy with a platform-appropriate modifier for moving
 - Byte-level transfer progress
 - Platform-native file opening and previews
+- Shared CMQ artwork embedded in both native applications
 - Native context menu for common file operations
 - Remembers pane locations, window size, and divider position
 - Falls back to the home folder when a remembered location is unavailable
@@ -54,7 +57,7 @@ cd windows\CMQ.Windows
 dotnet run
 ```
 
-See the [Windows documentation](windows/README.md) for publishing instructions and Windows-specific interaction details.
+See the [Windows documentation](windows/README.md) for the public download, SmartScreen authorization, build instructions, and Windows-specific interaction details.
 
 ## Installing a downloaded macOS build
 
