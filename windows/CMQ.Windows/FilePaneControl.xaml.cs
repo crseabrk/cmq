@@ -2,6 +2,7 @@ using Microsoft.VisualBasic.FileIO;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -232,7 +233,7 @@ public partial class FilePaneControl : UserControl
                 MessageBoxButton.OK, MessageBoxImage.Warning);
     }
 
-    private static List<string> TransferWorker(List<string> sources, string destination, TransferMode mode, IProgress<TransferProgress> progress)
+    private static List<string> TransferWorker(List<string> sources, string destination, TransferMode mode, IProgress<TransferStatus> progress)
     {
         var errors = new List<string>();
         long total = Math.Max(1, sources.Sum(ByteSize));
@@ -459,7 +460,7 @@ public partial class FilePaneControl : UserControl
     }
 
     private sealed record DriveChoice(string Path, string Label);
-    private sealed record TransferProgress(long Completed, long Total, string Name);
+    private sealed record TransferStatus(long Completed, long Total, string Name);
 }
 
 public enum TransferMode { Copy, Move }
