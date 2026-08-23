@@ -16,9 +16,9 @@ CMQ for macOS requires macOS 13 or later on an Apple Silicon Mac.
 
 ### Windows 11
 
-[Download CMQ for Windows 1.0.0](https://github.com/crseabrk/cmq/releases/tag/windows-v1.0.0)
+[Download CMQ for Windows 1.0.1](https://github.com/crseabrk/cmq/releases/tag/windows-v1.0.1)
 
-[Direct Windows ZIP download](https://github.com/crseabrk/cmq/releases/download/windows-v1.0.0/CMQ-Windows-x64.zip)
+[Direct Windows ZIP download](https://github.com/crseabrk/cmq/releases/download/windows-v1.0.1/CMQ-Windows-x64.zip)
 
 The Windows ZIP is self-contained; no separate .NET installation is required. Its executable includes the multi-resolution CMQ icon derived from the original Mac artwork.
 
