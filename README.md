@@ -2,27 +2,34 @@
 
 **Copy. Move. Quit.**
 
-CMQ is a deliberately small, native two-pane file manager for macOS. Choose a drive or folder in each pane, then copy or move files between them. It is not intended to replace Finder or grow into a commander-style toolbox.
+CMQ is a deliberately small, native two-pane file manager. Choose a drive or folder in each pane, then copy or move files between them. It is not intended to replace Finder or File Explorer or grow into a commander-style toolbox.
+
+## Platforms
+
+- **macOS:** the original Swift/AppKit implementation in `CMQ.swift`
+- **Windows 11:** the native .NET/WPF implementation under [`windows/`](windows/README.md)
+
+The platform implementations share the same workflow and project space while remaining separate native applications.
 
 ## Features
 
 - Two independent file panes
 - Mounted-drive selector for each pane
 - Back, forward, up, and direct path navigation
-- Drag-and-drop copy; hold Command while dropping to move
+- Drag-and-drop copy with a platform-appropriate modifier for moving
 - Byte-level transfer progress
-- Native Quick Look previews for one or several selected files
+- Platform-native file opening and previews
 - Native context menu for common file operations
 - Remembers pane locations, window size, and divider position
 - Falls back to the home folder when a remembered location is unavailable
 
-## Requirements
+## macOS requirements
 
 - macOS 13 or later
 - Apple Silicon Mac
 - Xcode or matching Apple command-line toolchain
 
-## Build
+## Build for macOS
 
 ```sh
 chmod +x build.sh
@@ -32,7 +39,18 @@ open outputs/CMQ.app
 
 The script compiles the single Swift/AppKit source file, constructs the application bundle, embeds the icon, and applies an ad-hoc local signature. It does not require an Xcode project.
 
-## Installing a downloaded build
+## Build for Windows 11
+
+Install the .NET 8 SDK, then:
+
+```powershell
+cd windows\CMQ.Windows
+dotnet run
+```
+
+See the [Windows documentation](windows/README.md) for publishing instructions and Windows-specific interaction details.
+
+## Installing a downloaded macOS build
 
 1. Download and unzip the CMQ release.
 2. Drag `CMQ.app` into `/Applications`.
@@ -40,7 +58,7 @@ The script compiles the single Swift/AppKit source file, constructs the applicat
 
 CMQ is free, small, and non-commercial. Apple requires the same $99 USD annual Developer Program membership to Developer ID sign and notarize this hobby utility as it does for commercial Mac software. That recurring cost is out of proportion to CMQ's deliberately limited scope, so community builds are currently ad-hoc signed instead. The source and build process are public so users can inspect or build CMQ themselves.
 
-## File and drive permissions
+## macOS file and drive permissions
 
 macOS protects locations including Desktop, Documents, Downloads, iCloud Drive, network volumes, and removable drives. The first time CMQ tries to access one of these locations, macOS may ask for permission. Choose **Allow** if you want to use that location in CMQ.
 
