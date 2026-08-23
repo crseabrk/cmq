@@ -1,0 +1,30 @@
+name: Windows
+
+on:
+  push:
+    branches: [windows-port]
+  pull_request:
+    paths:
+      - "windows/**"
+      - ".github/workflows/windows.yml"
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - name: Restore
+        run: dotnet restore windows/CMQ.Windows/CMQ.Windows.csproj
+      - name: Build
+        run: dotnet build windows/CMQ.Windows/CMQ.Windows.csproj --configuration Release --no-restore
+      - name: Publish test build
+        run: dotnet publish windows/CMQ.Windows/CMQ.Windows.csproj --configuration Release --runtime win-x64 --self-contained true -p:PublishSingleFile=true --output windows-test-build
+      - name: Upload test build
+        uses: actions/upload-artifact@v4
+        with:
+          name: CMQ-Windows-x64
+          path: windows-test-build/
+          if-no-files-found: error
