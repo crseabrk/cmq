@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import path from "node:path";
 
 const [, , output, ...inputs] = process.argv;
 if (!output || inputs.length === 0) {
@@ -34,5 +35,5 @@ images.forEach((image, index) => {
   offset += image.data.length;
 });
 
-fs.mkdirSync(new URL(".", `file://${output.replaceAll("\\", "/")}`).pathname, { recursive: true });
+fs.mkdirSync(path.dirname(output), { recursive: true });
 fs.writeFileSync(output, Buffer.concat([header, ...images.map((image) => image.data)]));
