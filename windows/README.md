@@ -6,8 +6,8 @@ The existing Swift/AppKit application remains the macOS implementation. The Wind
 
 ## Download
 
-- [CMQ for Windows 1.0.0 release page](https://github.com/crseabrk/cmq/releases/tag/windows-v1.0.0)
-- [Direct download: CMQ-Windows-x64.zip](https://github.com/crseabrk/cmq/releases/download/windows-v1.0.0/CMQ-Windows-x64.zip)
+- [CMQ for Windows 1.0.1 release page](https://github.com/crseabrk/cmq/releases/tag/windows-v1.0.1)
+- [Direct download: CMQ-Windows-x64.zip](https://github.com/crseabrk/cmq/releases/download/windows-v1.0.1/CMQ-Windows-x64.zip)
 
 Windows and macOS releases use independent version numbers. See [all releases](https://github.com/crseabrk/cmq/releases) for both platforms.
 
