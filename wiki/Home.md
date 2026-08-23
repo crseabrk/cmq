@@ -2,6 +2,8 @@
 
 CMQ is a deliberately small, native two-pane file manager for **macOS** and **Windows 11**. Choose a drive or folder in each pane, then copy or move files while keeping both locations visible.
 
+Both native applications use the same CMQ artwork. macOS and Windows releases have independent version numbers; GitHub's **Latest** badge reflects publication order, so use the platform-specific links below.
+
 CMQ is intentionally focused. It is not meant to replace Finder or File Explorer or become a commander-style toolbox.
 
 ## Download CMQ
@@ -18,7 +20,7 @@ CMQ for macOS requires macOS 13 or later on an Apple Silicon Mac.
 
 [Direct Windows ZIP download](https://github.com/crseabrk/cmq/releases/download/windows-v1.0.0/CMQ-Windows-x64.zip)
 
-The Windows ZIP is self-contained; no separate .NET installation is required.
+The Windows ZIP is self-contained; no separate .NET installation is required. Its executable includes the multi-resolution CMQ icon derived from the original Mac artwork.
 
 ## Installing on macOS
 
@@ -57,6 +59,7 @@ When first testing move or Recycle Bin behavior, use disposable files.
 
 - [Source repository](https://github.com/crseabrk/cmq)
 - [All releases](https://github.com/crseabrk/cmq/releases)
+- [Windows documentation](https://github.com/crseabrk/cmq/blob/main/windows/README.md)
 - [Project history](https://github.com/crseabrk/cmq/blob/main/PROJECT_HISTORY.md)
 - [Changelog](https://github.com/crseabrk/cmq/blob/main/CHANGELOG.md)
 - [License](https://github.com/crseabrk/cmq/blob/main/LICENSE)
