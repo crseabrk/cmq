@@ -2,7 +2,14 @@
 
 This directory contains the native Windows implementation of **CMQ — Copy. Move. Quit.**
 
-The existing Swift/AppKit application remains the macOS implementation. The Windows version follows the same deliberately small two-pane workflow while using Windows-native behavior and terminology.
+The existing Swift/AppKit application remains the macOS implementation. The Windows version follows the same deliberately small two-pane workflow while using Windows-native behavior and terminology. Its executable embeds Windows icon sizes generated from the original CMQ macOS artwork.
+
+## Download
+
+- [CMQ for Windows 1.0.0 release page](https://github.com/crseabrk/cmq/releases/tag/windows-v1.0.0)
+- [Direct download: CMQ-Windows-x64.zip](https://github.com/crseabrk/cmq/releases/download/windows-v1.0.0/CMQ-Windows-x64.zip)
+
+Windows and macOS releases use independent version numbers. See [all releases](https://github.com/crseabrk/cmq/releases) for both platforms.
 
 ## Requirements
 
@@ -13,12 +20,12 @@ Self-contained release and test builds include the required runtime.
 
 ## Running a downloaded build
 
-1. Download the Windows ZIP and extract it to a normal folder.
+1. Download `CMQ-Windows-x64.zip` from the official Windows release and extract it to a normal folder.
 2. Run `CMQ.exe`.
 3. If Microsoft Defender SmartScreen shows **Windows protected your PC**, select **More info**.
 4. Confirm that the application name is **CMQ.exe**, then select **Run anyway**.
 
-CMQ's community builds are not currently code-signed, so Windows may show this warning for every newly downloaded version—not only test builds. Only authorize a copy downloaded from the official CMQ GitHub repository.
+CMQ's community builds are not currently code-signed, so Windows may show this warning for every newly downloaded version—not only test builds. Only authorize a copy downloaded from the [official CMQ GitHub repository](https://github.com/crseabrk/cmq).
 
 You can also remove the downloaded-file marker before running it:
 
