@@ -233,27 +233,24 @@ public partial class FilePaneControl : UserControl
                 MessageBoxButton.OK, MessageBoxImage.Warning);
     }
 
-    private static List<string> TransferWorker(List<string> sources, string destination, TransferMode mode, IProgress<TransferStatus> progress)
+    private List<string> TransferWorker(List<string> sources, string destination, TransferMode mode, IProgress<TransferStatus> progress)
     {
         var errors = new List<string>();
         long total = Math.Max(1, sources.Sum(ByteSize));
         long completed = 0;
+        var conflicts = new ConflictSession();
 
         foreach (var source in sources)
         {
+            if (conflicts.Cancelled) break;
             try
             {
-                var target = UniqueDestination(destination, Path.GetFileName(source));
-                CopyRecursively(source, target, bytes =>
+                var target = Path.Combine(destination, Path.GetFileName(source));
+                TransferRecursively(source, target, mode, conflicts, bytes =>
                 {
                     completed += bytes;
                     progress.Report(new(completed, total, Path.GetFileName(source)));
                 });
-                if (mode == TransferMode.Move)
-                {
-                    if (Directory.Exists(source)) Directory.Delete(source, true);
-                    else File.Delete(source);
-                }
             }
             catch (Exception ex)
             {
@@ -275,21 +272,61 @@ public partial class FilePaneControl : UserControl
         catch { return 0; }
     }
 
-    private static void CopyRecursively(string source, string target, Action<int> report)
+    private bool TransferRecursively(string source, string originalTarget, TransferMode mode,
+        ConflictSession conflicts, Action<long> report)
     {
-        if (Directory.Exists(source))
+        if (conflicts.Cancelled) return false;
+        var target = originalTarget;
+        var sourceIsDirectory = Directory.Exists(source);
+
+        if (File.Exists(target) || Directory.Exists(target))
+        {
+            var canMerge = sourceIsDirectory && Directory.Exists(target);
+            var decision = ResolveConflict(source, target, canMerge, conflicts);
+            switch (decision)
+            {
+                case ConflictDecision.Merge when canMerge:
+                    break;
+                case ConflictDecision.Replace:
+                    if (Directory.Exists(target)) Directory.Delete(target, true);
+                    else File.Delete(target);
+                    break;
+                case ConflictDecision.KeepBoth:
+                    target = UniqueDestination(Path.GetDirectoryName(target)!, Path.GetFileName(target));
+                    break;
+                case ConflictDecision.Skip:
+                    report(ByteSize(source));
+                    return false;
+                case ConflictDecision.Cancel:
+                    conflicts.Cancelled = true;
+                    return false;
+                default:
+                    return false;
+            }
+        }
+
+        if (sourceIsDirectory)
         {
             Directory.CreateDirectory(target);
-            foreach (var directory in Directory.EnumerateDirectories(source, "*", System.IO.SearchOption.AllDirectories))
-                Directory.CreateDirectory(Path.Combine(target, Path.GetRelativePath(source, directory)));
-            foreach (var file in Directory.EnumerateFiles(source, "*", System.IO.SearchOption.AllDirectories))
-                CopyFile(file, Path.Combine(target, Path.GetRelativePath(source, file)), report);
-            return;
+            var completed = true;
+            foreach (var child in Directory.EnumerateFileSystemEntries(source).ToList())
+            {
+                var childCompleted = TransferRecursively(child, Path.Combine(target, Path.GetFileName(child)),
+                    mode, conflicts, report);
+                completed = completed && childCompleted;
+                if (conflicts.Cancelled) { completed = false; break; }
+            }
+            try { Directory.SetLastWriteTime(target, Directory.GetLastWriteTime(source)); } catch { }
+            if (mode == TransferMode.Move && completed) Directory.Delete(source, false);
+            return completed;
         }
+
         CopyFile(source, target, report);
+        if (mode == TransferMode.Move) File.Delete(source);
+        return true;
     }
 
-    private static void CopyFile(string source, string target, Action<int> report)
+    private static void CopyFile(string source, string target, Action<long> report)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(target)!);
         using var input = new FileStream(source, FileMode.Open, FileAccess.Read, FileShare.Read, 1024 * 1024, FileOptions.SequentialScan);
@@ -302,6 +339,21 @@ public partial class FilePaneControl : UserControl
             report(read);
         }
         File.SetLastWriteTime(target, File.GetLastWriteTime(source));
+    }
+
+    private ConflictDecision ResolveConflict(string source, string destination, bool canMerge, ConflictSession session)
+    {
+        var saved = canMerge ? session.FolderDecisionForAll : session.FileDecisionForAll;
+        if (saved is not null) return saved.Value;
+
+        var result = Dispatcher.Invoke(() =>
+            ConflictDialog.Ask(Window.GetWindow(this), source, destination, canMerge));
+        if (result.ApplyToAll && result.Decision != ConflictDecision.Cancel)
+        {
+            if (canMerge) session.FolderDecisionForAll = result.Decision;
+            else session.FileDecisionForAll = result.Decision;
+        }
+        return result.Decision;
     }
 
     private static string UniqueDestination(string folder, string name)
@@ -464,6 +516,15 @@ public partial class FilePaneControl : UserControl
 }
 
 public enum TransferMode { Copy, Move }
+
+public enum ConflictDecision { Merge, Replace, KeepBoth, Skip, Cancel }
+
+internal sealed class ConflictSession
+{
+    public ConflictDecision? FolderDecisionForAll { get; set; }
+    public ConflictDecision? FileDecisionForAll { get; set; }
+    public bool Cancelled { get; set; }
+}
 
 public sealed class FileItem
 {
