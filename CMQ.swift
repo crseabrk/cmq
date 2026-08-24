@@ -4,6 +4,14 @@ import UniformTypeIdentifiers
 
 enum TransferMode { case copy, move }
 
+private enum ConflictDecision { case merge, replace, keepBoth, skip, cancel }
+
+private final class ConflictSession {
+    var folderDecisionForAll: ConflictDecision?
+    var fileDecisionForAll: ConflictDecision?
+    var cancelled = false
+}
+
 final class FileItem: NSObject {
     let url: URL
     let isDirectory: Bool
@@ -242,6 +250,7 @@ final class PaneController: NSViewController, NSTableViewDataSource, NSTableView
             let totalBytes = max(1, urls.reduce(Int64(0)) { $0 + self.byteSize(of: $1) })
             var completedBytes: Int64 = 0
             var lastReported: Int64 = 0
+            let conflictSession = ConflictSession()
 
             let report: (Int64, String) -> Void = { added, name in
                 completedBytes += added
@@ -257,14 +266,15 @@ final class PaneController: NSViewController, NSTableViewDataSource, NSTableView
             }
 
             for (index, source) in urls.enumerated() {
+                if conflictSession.cancelled { break }
                 DispatchQueue.main.async {
                     let text = "\(mode == .copy ? "Copying" : "Moving") item \(index + 1) of \(urls.count): \(source.lastPathComponent)"
                     self.statusLabel.stringValue = text; self.partner?.statusLabel.stringValue = text
                 }
-                let target = self.uniqueDestination(for: source, in: destination)
+                let target = destination.appendingPathComponent(source.lastPathComponent)
                 do {
-                    try self.copyRecursively(from: source, to: target, progress: report)
-                    if mode == .move { try FileManager.default.removeItem(at: source) }
+                    _ = try self.transferRecursively(from: source, to: target, mode: mode,
+                                                     conflicts: conflictSession, progress: report)
                 } catch { errors.append("\(source.lastPathComponent): \(error.localizedDescription)") }
             }
             DispatchQueue.main.async {
@@ -299,21 +309,62 @@ final class PaneController: NSViewController, NSTableViewDataSource, NSTableView
         return total
     }
 
-    private func copyRecursively(from source: URL, to target: URL, progress: (Int64, String) -> Void) throws {
+    @discardableResult
+    private func transferRecursively(from source: URL, to originalTarget: URL, mode: TransferMode,
+                                     conflicts: ConflictSession,
+                                     progress: (Int64, String) -> Void) throws -> Bool {
+        if conflicts.cancelled { return false }
         let values = try source.resourceValues(forKeys: [.isDirectoryKey, .isRegularFileKey, .isSymbolicLinkKey, .fileSizeKey])
+        var target = originalTarget
+        let sourceIsDirectory = values.isDirectory == true && values.isSymbolicLink != true
+
+        if FileManager.default.fileExists(atPath: target.path) {
+            var destinationIsDirectory: ObjCBool = false
+            FileManager.default.fileExists(atPath: target.path, isDirectory: &destinationIsDirectory)
+            let canMerge = sourceIsDirectory && destinationIsDirectory.boolValue
+            let decision = conflictDecision(for: source, destination: target, canMerge: canMerge, session: conflicts)
+            switch decision {
+            case .merge where canMerge:
+                break
+            case .replace:
+                try FileManager.default.removeItem(at: target)
+            case .keepBoth:
+                target = uniqueDestination(for: source, in: target.deletingLastPathComponent())
+            case .skip:
+                progress(byteSize(of: source), source.lastPathComponent)
+                return false
+            case .cancel:
+                conflicts.cancelled = true
+                return false
+            case .merge:
+                return false
+            }
+        }
+
         if values.isSymbolicLink == true {
             try FileManager.default.copyItem(at: source, to: target)
-            return
+            if mode == .move { try FileManager.default.removeItem(at: source) }
+            return true
         }
-        if values.isDirectory == true {
-            try FileManager.default.createDirectory(at: target, withIntermediateDirectories: false)
+        if sourceIsDirectory {
+            if !FileManager.default.fileExists(atPath: target.path) {
+                try FileManager.default.createDirectory(at: target, withIntermediateDirectories: false)
+            }
+            var completed = true
             for child in try FileManager.default.contentsOfDirectory(at: source, includingPropertiesForKeys: nil) {
-                try copyRecursively(from: child, to: target.appendingPathComponent(child.lastPathComponent), progress: progress)
+                let childCompleted = try transferRecursively(from: child,
+                    to: target.appendingPathComponent(child.lastPathComponent), mode: mode,
+                    conflicts: conflicts, progress: progress)
+                completed = completed && childCompleted
+                if conflicts.cancelled { completed = false; break }
             }
             if let attributes = try? FileManager.default.attributesOfItem(atPath: source.path) {
                 try? FileManager.default.setAttributes(attributes, ofItemAtPath: target.path)
             }
-            return
+            if mode == .move && completed {
+                try FileManager.default.removeItem(at: source)
+            }
+            return completed
         }
 
         FileManager.default.createFile(atPath: target.path, contents: nil)
@@ -329,6 +380,51 @@ final class PaneController: NSViewController, NSTableViewDataSource, NSTableView
         if let attributes = try? FileManager.default.attributesOfItem(atPath: source.path) {
             try? FileManager.default.setAttributes(attributes, ofItemAtPath: target.path)
         }
+        if mode == .move { try FileManager.default.removeItem(at: source) }
+        return true
+    }
+
+    private func conflictDecision(for source: URL, destination: URL, canMerge: Bool,
+                                  session: ConflictSession) -> ConflictDecision {
+        if let saved = canMerge ? session.folderDecisionForAll : session.fileDecisionForAll { return saved }
+
+        var result: (ConflictDecision, Bool) = (.cancel, false)
+        DispatchQueue.main.sync {
+            let alert = NSAlert()
+            alert.alertStyle = .warning
+            alert.messageText = canMerge ? "A folder with this name already exists" : "An item with this name already exists"
+            alert.informativeText = conflictDescription(source: source, destination: destination)
+            if canMerge { alert.addButton(withTitle: "Merge Folders") }
+            alert.addButton(withTitle: "Replace")
+            alert.addButton(withTitle: "Keep Both")
+            alert.addButton(withTitle: "Skip")
+            alert.addButton(withTitle: "Cancel Transfer")
+
+            let applyToAll = NSButton(checkboxWithTitle: "Apply this choice to all remaining \(canMerge ? "folder" : "file") conflicts", target: nil, action: nil)
+            alert.accessoryView = applyToAll
+            let response = alert.runModal()
+            let index = response.rawValue - NSApplication.ModalResponse.alertFirstButtonReturn.rawValue
+            let decisions: [ConflictDecision] = canMerge
+                ? [.merge, .replace, .keepBoth, .skip, .cancel]
+                : [.replace, .keepBoth, .skip, .cancel]
+            let decision = decisions.indices.contains(index) ? decisions[index] : .cancel
+            result = (decision, applyToAll.state == .on && decision != .cancel)
+        }
+        if result.1 {
+            if canMerge { session.folderDecisionForAll = result.0 }
+            else { session.fileDecisionForAll = result.0 }
+        }
+        return result.0
+    }
+
+    private func conflictDescription(source: URL, destination: URL) -> String {
+        func details(_ url: URL) -> String {
+            let values = try? url.resourceValues(forKeys: [.isDirectoryKey, .fileSizeKey, .contentModificationDateKey])
+            let kind = values?.isDirectory == true ? "Folder" : ByteCountFormatter.string(fromByteCount: Int64(values?.fileSize ?? 0), countStyle: .file)
+            let modified = values?.contentModificationDate.map { DateFormatter.localizedString(from: $0, dateStyle: .medium, timeStyle: .short) } ?? "Unknown date"
+            return "\(kind), modified \(modified)"
+        }
+        return "Source: \(source.lastPathComponent) — \(details(source))\nDestination: \(destination.lastPathComponent) — \(details(destination))"
     }
 
     private func uniqueDestination(for source: URL, in folder: URL) -> URL {
