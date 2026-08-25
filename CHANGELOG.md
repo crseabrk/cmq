@@ -2,6 +2,14 @@
 
 CMQ maintains independent macOS and Windows release numbers.
 
+## Unreleased
+
+### Added
+
+- Copy and move operations now offer Merge Folders, Replace, Keep Both, Skip, and Cancel when destination items already exist.
+- Conflict choices can be applied to all remaining folder or file conflicts in the current transfer.
+- Merged moves remove only source items that transferred successfully, preserving skipped or failed items.
+
 ## Windows 1.0.1 — 2026-08-23
 
 ### Fixed

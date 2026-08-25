@@ -54,4 +54,5 @@ The published application is written beneath `bin\Release\net8.0-windows10.0.190
 
 - Drag files or folders onto either pane to copy them there.
 - Hold **Shift** while dropping to move instead.
+- When an item already exists, choose **Merge Folders**, **Replace**, **Keep Both**, **Skip**, or **Cancel Transfer**. The selected action can be applied to all remaining conflicts of the same kind for that transfer.
 - Right-click a selection for copy/move to the other pane, rename, new folder, Recycle Bin, Explorer, path copying, Properties, and refresh.

@@ -1,0 +1,29 @@
+name: macOS test build
+
+on:
+  push:
+    branches: [conflict-handling]
+    paths:
+      - "CMQ.swift"
+      - "Info.plist"
+      - "Assets/**"
+      - "build.sh"
+      - ".github/workflows/macos-test.yml"
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build CMQ
+        run: |
+          chmod +x build.sh
+          ./build.sh
+      - name: Package test build
+        run: hdiutil create -volname "CMQ Test" -srcfolder outputs/CMQ.app -ov -format UDZO CMQ-macOS-arm64-test.dmg
+      - name: Upload test build
+        uses: actions/upload-artifact@v4
+        with:
+          name: CMQ-macOS-test-download
+          path: CMQ-macOS-arm64-test.dmg
+          if-no-files-found: error

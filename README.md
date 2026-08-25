@@ -26,6 +26,7 @@ macOS and Windows releases have independent version numbers. GitHub highlights t
 - Back, forward, up, and direct path navigation
 - Drag-and-drop copy with a platform-appropriate modifier for moving
 - Byte-level transfer progress
+- Folder merging and per-item conflict choices, with an optional apply-to-all mode for the current transfer
 - Platform-native file opening and previews
 - Shared CMQ artwork embedded in both native applications
 - Native context menu for common file operations
